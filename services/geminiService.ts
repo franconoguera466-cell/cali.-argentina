@@ -90,3 +90,25 @@ export const getDailyTip = async (): Promise<string> => {
         return "Stay hydrated by drinking plenty of water throughout the day!";
     }
 };
+export const estimateNutritionFromImage = async (base64Image: string): Promise<DetectedFood> => {
+    const prompt = `You are a nutritional expert specializing in Argentine cuisine. Analyze the attached image. Your task is to identify if the primary food item is one of the following common Argentine dishes: Empanada, Milanesa, Asado, Choripán, Alfajor, Provoleta, or Tortilla de papa.  
+If it is one of these dishes, provide your best estimation for its nutritional values for a standard single serving.  
+If the food is not one of these, or if you cannot identify it clearly, your response should indicate an error.`;
+
+    const result = await ai.models.generate({
+        model,
+        input: [
+            {
+                role: "user",
+                type: "input_image",
+                mimeType: "image/jpeg",
+                data: base64Image,
+            },
+            { role: "user", text: prompt }
+        ],
+        responseSchema: foodDetectionSchema,
+    });
+
+    return result.output[0] as DetectedFood;
+};
+
